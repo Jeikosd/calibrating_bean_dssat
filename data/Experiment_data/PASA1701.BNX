@@ -11,15 +11,16 @@ Palmira, para sensitivity analysis
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
  1 1 1 0 SIM                        1  1  0  0  1  0  0  0  0  0  0  0  1
+ 2 1 1 0 SIM                        1  1  0  0  2  0  0  0  0  0  0  0  2
 
 *CULTIVARS
 @C CR INGENO CNAME
- 1 BN 000004 DUMMY
+ 1 BN IB0028 Jatu Rong
 
 *FIELDS
 @L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL    FLNAME
  1 CCLA0001 PALM8034   -99   -99 DR000   -99   -99   -99 C      -99  CCPA000030 S1
- 2 CCLA0002 PALM8034   -99   -99 DR000   -99   -99   -99 C      -99  CCPA000030 S2
+!2 CCLA0002 PALM8034   -99   -99 DR000   -99   -99   -99 C      -99  CCPA000030 S2
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
  1             -99             -99       -99               -99   -99   -99   -99   -99   -99
  2             -99             -99       -99               -99   -99   -99   -99   -99   -99
