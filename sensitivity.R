@@ -1,8 +1,11 @@
-install.packages('ggbeeswarm')
-install.packages('ggjoy')
 library(tidyverse)
 library(lubridate)
 library(ggjoy)
+library(ggplot2)
+library(ggbeeswarm)
+library(hrbrthemes)
+library(viridis)
+library(viridisLite)
 
 path_data <- 'data/' 
 planting <- seq(ymd('1980-04-15'), ymd('2011-04-15'), by = 'years')
@@ -21,18 +24,26 @@ evaluate_df <- left_join( evaluate_df, em_fl_df, by = 'TN') %>%
   ungroup()
 
 
-proof <- evaluate_df %>%
-  filter(year %in% c(1980, 1981))
 
-evaluate_df %>%
-  filter(year %in% 1980)
 
-ggplot(proof, aes(x = HWAMS, y = EM_FL)) + 
-  geom_joy(scale=1, rel_min_height=.01) +
+ggplot(evaluate_df, aes(x = HWAMS, y = EM_FL)) + 
+  geom_joy(scale=3, rel_min_height=0.01) +
+  labs(title = 'Sensibilidad EM-FL',
+       subtitle = '',
+       y = 'EM-FL') +
   theme_joy(font_size = 13, grid = T) +
-  theme(axis.title.y = element_blank()) +
-  facet_wrap(~year, scales='free') 
+  theme(axis.title.y = element_blank())
 
-ggplot(proof, aes(x = HWAMS, y = year, group = year)) +
-  geom_joy(scale = 10, size = 0.3, rel_min_height = 0.03) +
-  facet_wrap(~EM_F, scales='free') 
+ggplot(evaluate_df) +
+  geom_joy(aes(x = HWAMS, y = year, group = year), scale = 10, size = 0.3, rel_min_height = 0.03) +
+  geom_jitter()
+
+
+ggplot(evaluate_df, aes(year, HWAMS, color= EM_FL)) + 
+  geom_jitter() +
+  geom_quasirandom(varwidth = TRUE) +
+  scale_color_viridis(discrete=TRUE)
+  theme_bw()
+  
+  
+  
