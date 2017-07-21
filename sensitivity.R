@@ -49,7 +49,7 @@ ggplot(evaluate_df, aes(year, HWAMS, color= EM_FL)) +
   
 ## Heatmap 
 ggplot(evaluate_df, aes(x = year, y = EM_FL, fill=HWAMS)) +  geom_tile() +
- theme_bw() +  scale_fill_viridis()
+ theme_bw() +  scale_fill_viridis() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
   # + geom_text(aes(label = round(HWAMS, 2)), size=3) 
   
 
