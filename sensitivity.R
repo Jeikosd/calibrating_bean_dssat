@@ -47,3 +47,16 @@ ggplot(evaluate_df, aes(year, HWAMS, color= EM_FL)) +
   
   
   
+## Heatmap 
+ggplot(evaluate_df, aes(x = year, y = EM_FL, fill=HWAMS)) +  geom_tile() +
+ theme_bw() +  scale_fill_viridis()
+  # + geom_text(aes(label = round(HWAMS, 2)), size=3) 
+  
+
+
+## boxplot
+ggplot(evaluate_df, aes(x = EM_FL, y= HWAMS, colour=EM_FL)) + geom_boxplot() + 
+  geom_jitter(width = 0.2, alpha = 0.5) + coord_flip()
+
+
+
