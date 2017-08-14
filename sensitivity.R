@@ -11,52 +11,67 @@ path_data <- 'data/'
 planting <- seq(ymd('1980-04-15'), ymd('2011-04-15'), by = 'years')
 evaluate <- 'Evaluate.OUT'
 
-evaluate_df <- read_table(file = paste0(path_data, evaluate), skip = 2)
+evaluate_P <- list( 'Evaluate_palmira.OUT', 'Evaluate_santander.OUT')
 
-em_fl_df <- data_frame(TN = 1:10, EM_FL = seq(from = 17, to = 26, by = 1))
+evaluate_d <- function(evaluate){
+  
+  evaluate_df <- read_table(file = paste0(path_data, evaluate), skip = 2)
+  
+  em_fl_df <- data_frame(TN = 1:11, EM_FL = seq(from = 17, to = 27, by = 1))
+  
+  Region.a<-strsplit(strsplit(evaluate,"_")[[1]][2], ".O")[[1]][1]
+  
+  
+  evaluate_df <- left_join( evaluate_df, em_fl_df, by = 'TN') %>%
+    group_by(TN) %>%
+    mutate(date = planting) %>%
+    mutate(year = as.factor(year(date))) %>%
+    select(EM_FL, TN, date, year, everything()) %>%
+    mutate(EM_FL = factor(EM_FL, unique(EM_FL)))  %>%
+    ungroup() %>% mutate(Region = Region.a)
+  
+return(evaluate_df)}
 
-evaluate_df <- left_join( evaluate_df, em_fl_df, by = 'TN') %>%
-  group_by(TN) %>%
-  mutate(date = planting) %>%
-  mutate(year = as.factor(year(date))) %>%
-  select(EM_FL, TN, date, year, everything()) %>%
-  mutate(EM_FL = factor(EM_FL, unique(EM_FL)))  %>%
-  ungroup()
+evaluate_df <- sapply(X =  evaluate_P, FUN = evaluate_d, simplify = F) %>% 
+  bind_rows()
+ 
+
+ggplot(evaluate_df, aes(x = HWAMS, y = EM_FL, fill= Region)) + 
+    geom_joy(scale=3, rel_min_height=0.01,alpha = .5) +
+    labs(title = 'Sensibilidad EM-FL', subtitle = '', y = 'EM-FL') +
+    theme_joy(font_size = 13, grid = T) +
+    theme(axis.title.y = element_blank())
 
 
+ggplot(evaluate_df, aes(x = HWAMS, y = year, fill = Region)) +
+  geom_joy(scale = 10, size = 0.3, rel_min_height = 0.03, alpha = 0.5) 
 
-
-ggplot(evaluate_df, aes(x = HWAMS, y = EM_FL)) + 
-  geom_joy(scale=3, rel_min_height=0.01) +
-  labs(title = 'Sensibilidad EM-FL',
-       subtitle = '',
-       y = 'EM-FL') +
-  theme_joy(font_size = 13, grid = T) +
-  theme(axis.title.y = element_blank())
-
-ggplot(evaluate_df) +
-  geom_joy(aes(x = HWAMS, y = year, group = year), scale = 10, size = 0.3, rel_min_height = 0.03) +
-  geom_jitter()
 
 
 ggplot(evaluate_df, aes(year, HWAMS, color= EM_FL)) + 
-  geom_jitter() +
+  geom_jitter() + facet_grid(.~Region) + 
   geom_quasirandom(varwidth = TRUE) +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_color_viridis(discrete=TRUE)
-  theme_bw()
   
   
   
 ## Heatmap 
 ggplot(evaluate_df, aes(x = year, y = EM_FL, fill=HWAMS)) +  geom_tile() +
- theme_bw() +  scale_fill_viridis() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  # + geom_text(aes(label = round(HWAMS, 2)), size=3) 
+ theme_bw() +  scale_fill_viridis() +  facet_grid(.~Region)+ 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+#+ geom_text(aes(label = round(HWAMS, 2)), size=3) 
   
 
 
 ## boxplot
-ggplot(evaluate_df, aes(x = EM_FL, y= HWAMS, colour=EM_FL)) + geom_boxplot() + 
-  geom_jitter(width = 0.2, alpha = 0.5) + coord_flip()
+ggplot(evaluate_df, aes(x = EM_FL, y= HWAMS, colour=Region)) +
+  geom_point(position=position_jitterdodge(dodge.width=0.9), shape =1) +
+  geom_boxplot() + theme_bw()
+
+
+
+
 
 
 
