@@ -42,9 +42,15 @@ ggplot(evaluate_df, aes(x = HWAMS, y = EM_FL, fill= Region)) +
     theme_joy(font_size = 13, grid = T) +
     theme(axis.title.y = element_blank())
 
+ggsave(filename = "point.png", width = 10, height = 5)
+
+
 
 ggplot(evaluate_df, aes(x = HWAMS, y = year, fill = Region)) +
-  geom_joy(scale = 10, size = 0.3, rel_min_height = 0.03, alpha = 0.5) 
+  geom_joy(scale = 10, size = 0.3, rel_min_height = 0.03, alpha = 0.5) + theme_bw()
+
+
+ggsave(filename = "year.png", width = 10, height = 5)
 
 
 
@@ -54,7 +60,9 @@ ggplot(evaluate_df, aes(year, HWAMS, color= EM_FL)) +
   theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_color_viridis(discrete=TRUE)
   
-  
+
+ggsave(filename = "scatter.png", width = 10, height = 5)
+
   
 ## Heatmap 
 ggplot(evaluate_df, aes(x = year, y = EM_FL, fill=HWAMS)) +  geom_tile() +
@@ -63,12 +71,16 @@ ggplot(evaluate_df, aes(x = year, y = EM_FL, fill=HWAMS)) +  geom_tile() +
 #+ geom_text(aes(label = round(HWAMS, 2)), size=3) 
   
 
+ggsave(filename = "Heatmap.png", width = 10, height = 5)
+
+
 
 ## boxplot
 ggplot(evaluate_df, aes(x = EM_FL, y= HWAMS, colour=Region)) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), shape =1) +
   geom_boxplot() + theme_bw()
 
+ggsave(filename = "boxplot.png", width = 10, height = 5)
 
 
 
