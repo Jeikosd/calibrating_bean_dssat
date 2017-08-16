@@ -13,10 +13,13 @@ evaluate <- 'Evaluate.OUT'
 
 evaluate_P <- list( 'Evaluate_palmira.OUT', 'Evaluate_santander.OUT')
 
+# Modificar la linea 23, 32, 33
 evaluate_d <- function(evaluate){
   
   evaluate_df <- read_table(file = paste0(path_data, evaluate), skip = 2)
   
+  # 1. Donde dice EM_FL cambiar por la nueva variable
+  # 2. Cambiar la secuencia by = se refiere al tamano del salto. 
   em_fl_df <- data_frame(TN = 1:11, EM_FL = seq(from = 17, to = 27, by = 1))
   
   Region.a<-strsplit(strsplit(evaluate,"_")[[1]][2], ".O")[[1]][1]
