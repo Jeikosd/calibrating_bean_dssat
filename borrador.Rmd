@@ -1,12 +1,28 @@
 ## Calibrando Frijol en DSSAT 
 
-[Patricia Alvarez](), [Alejandra Esquivel](https://github.com/aesquivel94), [Jeison Mesa](https://github.com/Jeikosd), [Jose Luis Cabrera Vega](jose.cabrera.vega@correounivalle.edu.co)
+[Patricia Alvarez](mailto:p.alvarez@cgiar.org), [Alejandra Esquivel](https://github.com/aesquivel94), [Jeison Mesa](https://github.com/Jeikosd), [Jose Luis Cabrera Vega](mailto:jose.cabrera.vega@correounivalle.edu.co)
 
 # Plan de trabajo
-- Realizar prueba de medias y varianza para determinar al menos en los dos momentos de la funcion de distribucion si existen diferencas en rendmiento para cada una de las variables que se ajustan para el proceso de simulacion.
+
+Como proceso de calibración, en primera instancia deseamos conocer la incertidumbre y sensibilidad asociada a los parametros de entrada del modelo los cuales son:
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+
+library(pander)
+df <- read.csv(file = 'data/rangos_coeficientes.csv')
+
+pandoc.table( df
+              , caption = "parametros de entrada"
+              , missing = NA
+              , emphasize.rownames = FALSE
+             )
+```
+
+- Realizar prueba de medias y varianza para determinar al menos en los dos momentos de la funcion de distribucion (proceso en media y varianza )si existen diferencas en rendmiento para cada una de las variables que se ajustan para el proceso de simulacion.
 
 - El anterior paso debe excluir al menos aquellos factores (EM_FL, 16, ....., 26) donde no se necesario graficar la distribuicion asociada a ella. (ANOVA?)
 
 - Analisis Facotorial? utilizando STATIS.
 
 - Analisis grafico de aquellas variables que resultaron relevantes (que en su efecto son sensibles)
+
