@@ -1,5 +1,12 @@
-
 ## Calibrando Frijol en DSSAT 
 
-[Patricia Alvarez](), [Alejandra Esquivel](https://github.com/aesquivel94), [Jeison Mesa](https://github.com/Jeikosd), [Daniel Amariles](https://github.com/danipilze), [Eliana Vallejo](https://github.com/Eli0203), [Leonardo Ordoñez]()
+[Patricia Alvarez](), [Alejandra Esquivel](https://github.com/aesquivel94), [Jeison Mesa](https://github.com/Jeikosd), [Jose Luis Cabrera Vega](jose.cabrera.vega@correounivalle.edu.co)
 
+# Plan de trabajo
+- Realizar prueba de medias y varianza para determinar al menos en los dos momentos de la funcion de distribucion si existen diferencas en rendmiento para cada una de las variables que se ajustan para el proceso de simulacion.
+
+- El anterior paso debe excluir al menos aquellos factores (EM_FL, 16, ....., 26) donde no se necesario graficar la distribuicion asociada a ella. (ANOVA?)
+
+- Analisis Facotorial? utilizando STATIS.
+
+- Analisis grafico de aquellas variables que resultaron relevantes (que en su efecto son sensibles)
