@@ -6,17 +6,41 @@
 
 Como proceso de calibración, en primera instancia deseamos conocer la incertidumbre y sensibilidad asociada a los parametros de entrada del modelo los cuales son:
 
-```{r, echo=FALSE, message=FALSE, results='asis'}
+-------------------------------------------------------------------
+ coeficiente                info                min    max     by  
+------------- -------------------------------- ------ ------ ------
+    EM-FL          Emergencia a floración        18     36     1   
 
-library(pander)
-df <- read.csv(file = 'data/rangos_coeficientes.csv')
+    FL-SH      tiempo primera flor a primera     1      8      1   
+                           vaina                                   
 
-pandoc.table( df
-              , caption = "parametros de entrada"
-              , missing = NA
-              , emphasize.rownames = FALSE
-             )
-```
+    FL-SD      tiempo primera flor a primera     6      18     1   
+                          semilla                                  
+
+    SD-PM      tiempo entre primera semilla y    8      26     1   
+                    madurez fisiológica                            
+
+    FL-LF        tiempo primera flor a fin       7      26     1   
+                       expansion hoja                              
+
+    LFMAX       tasa máxima de fotosíntesis     0.7    1.6    0.02 
+
+    SLAVR          área foliar específica       220    365     5   
+
+    SIZLF        maximo tamaño de full leaf     116    182     6   
+
+    WTPSD         máximo peso por semilla       0.15   0.65   0.05 
+
+    SFDUR      duración del llenado de grano     11     24     1   
+                    por cohorte de vaina                           
+
+    SDPDV        promedio semilla por vaina      1      7      1   
+
+    PODUR        tiempo requerido cultivar       7      16     1   
+                        alcance pod                                
+-------------------------------------------------------------------
+
+Table: Logical Operators
 
 - Realizar prueba de medias y varianza para determinar al menos en los dos momentos de la funcion de distribucion (proceso en media y varianza )si existen diferencas en rendmiento para cada una de las variables que se ajustan para el proceso de simulacion.
 
