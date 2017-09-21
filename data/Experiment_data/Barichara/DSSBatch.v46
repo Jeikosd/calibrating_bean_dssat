@@ -1,0 +1,11 @@
+$BATCH(MAIZE)
+!
+! Directory    : C:\DSSAT46\maize
+! Command Line : C:\DSSAT46\DSCSM046.EXE MZCER046 B DSSBatch.v46
+! Crop         : Maize           
+! Experiment   : GAGR0201.MZX
+! ExpNo        : 1
+! Debug        : C:\DSSAT46\DSCSM046.EXE MZCER046 " B DSSBatch.v46"
+!
+@FILEX                                                                                        TRTNO     RP     SQ     OP     CO
+PASA1701.BNX                                                                                      1      1      0      1      0
