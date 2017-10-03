@@ -56,8 +56,6 @@ make_cul_df <- function(cul_df, default_variables, vars_df){
 # k cantidad de numeros aleatorios
 
 
-
-
 make_combination <- function(file, inputs_df, cultivar, k){
   
   # This are the parameters @VAR#  VRNAME.......... EXPNO   ECO#  CSDL PPSEN EM-FL FL-SH FL-SD SD-PM FL-LF LFMAX SLAVR SIZLF  XFRT WTPSD SFDUR SDPDV PODUR THRSH SDPRO SDLIP
