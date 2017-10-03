@@ -34,7 +34,7 @@ write_cul <- function(matrix_cul, out_dir){
   SDLIP <- magrittr::extract2(matrix_cul, 22)
   
   
-  sink(paste0(out_dir, 'BNGRO046.CUL'), append = F)
+  sink(paste0(out_dir, '/BNGRO046.CUL'), append = F)
   
   cat("@VAR#  VRNAME.......... EXPNO   ECO#  CSDL PPSEN EM-FL FL-SH FL-SD SD-PM FL-LF LFMAX SLAVR SIZLF  XFRT WTPSD SFDUR SDPDV PODUR THRSH SDPRO SDLIP")
   # 
@@ -65,7 +65,6 @@ write_cul <- function(matrix_cul, out_dir){
   sink()
 }
 
-write_cul(x, 
-          out_dir = 'Runs/')
+write_cul(x, out_dir = 'Runs/')
 
 ## CRGRO046 Modelo de Frijol utilizado 

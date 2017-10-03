@@ -107,7 +107,7 @@ make_combination <- function(file, inputs_df, cultivar, k){
     
   
     
-    return(random_cul)
+    return(list(Cul_parameters = random_cul, coef_random = variables_to_change))
     
     
     # inputs_df %>%

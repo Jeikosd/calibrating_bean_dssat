@@ -12,7 +12,7 @@ files_dssat <- function(dir_dssat, dir_experiment, out_dir){
   library(stringr)
   
   
-  files_necessary <- '.CUL|.ECO|.SPE|.WTH|.BNX|.SOL'
+  files_necessary <- '.ECO|.SPE|.WTH|.BNX|.SOL'
   
   experiment <- list.files(dir_experiment, full.names = T) %>%
     data_frame(files = .) %>%
@@ -25,13 +25,19 @@ files_dssat <- function(dir_dssat, dir_experiment, out_dir){
     magrittr::extract2(1) %>%
     basename()
   
+  file_CUL <- list.files(dir_experiment, full.names = T) %>%
+    data_frame(files = .) %>%
+    filter(str_detect(files, '.CUL')) %>%
+    magrittr::extract2(1) %>%
+    basename()
+  
   exe_dssat <- paste0(dir_dssat, 'DSCSM046.EXE')    ## Executable DSSAT v 4.6
   
   
   file.copy(experiment, out_dir, recursive = T)
   file.copy(exe_dssat, out_dir, recursive = T)
   
-  return(x_file)
+  return(list(x_file = x_file, file_CUL = file_CUL))
   
 }
 # to test
@@ -75,6 +81,7 @@ execute_dssat <- function(dir_run, model){
   setwd(dir_run)
   system(paste0("DSCSM046.EXE " , model," B ", "DSSBatch.v46"), ignore.stdout = T, show.output.on.console = T)
   setwd('..')
+  setwd('..')
   
 }
 
@@ -94,6 +101,42 @@ make_id_run <- function(dir_run, id_cultivar){
   
   return(dir_base)
 }
+
+
+read_evaluate <- function(file){
+  
+  read_table(file, skip = 2)
+  
+  
+}
+col_types = cols(
+  x = col_double(),
+  y = col_date(format = "")
+)
+
+# SDAT PDAT    EDAT    ADAT    MDAT    HDAT
+
+read_summary <- function(file){
+  
+  summary_out <- read_table(file, skip = 3 , na = "*******",
+                            col_types = cols(SDAT = col_character(),
+                                             PDAT = col_character(), 
+                                             EDAT = col_character(),
+                                             ADAT = col_character(),
+                                             MDAT = col_character(),
+                                             HDAT = col_character())) %>%
+    mutate(SDAT = as.Date(SDAT, format("%Y%j")), 
+           PDAT = as.Date(PDAT, format("%Y%j")), 
+           EDAT = as.Date(EDAT, format("%Y%j")),
+           ADAT = as.Date(ADAT, format("%Y%j")),
+           MDAT = as.Date(MDAT, format("%Y%j")),
+           HDAT = as.Date(HDAT, format("%Y%j"))) %>%
+    select(SDAT, PDAT, everything())
+  
+  
+  return(summary_out)
+}
+
 
 https://cran.r-project.org/web/packages/mapsapi/index.html
 http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
