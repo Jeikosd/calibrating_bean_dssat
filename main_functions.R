@@ -152,6 +152,19 @@ read_treatments <- function(file){
   return(TN)
 }
 
+read_region <- function(file){
+  
+  line_number <- read_lines(file) %>%
+    str_which(pattern = '@SITE') 
+  
+  region <- read_lines(file, skip = line_number, n_max = 1) %>%
+    str_split(pattern = ",") %>%
+    magrittr::extract2(1) %>%
+    magrittr::extract(1)
+  
+  return(region)
+  
+}
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
 # http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer

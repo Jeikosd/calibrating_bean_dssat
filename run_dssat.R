@@ -61,7 +61,11 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
   number_TN <- read_treatments(paste0(dir_run_id, '/', files_running$x_file))
     
-   
+  # read region running
+  region <- read_region(file = paste0(dir_run_id, '/', files_running$x_file))
+  
+  
+    
   # make batch file
   
   CSMbatch(crop = "BEAN", name = files_running$x_file, filename = paste0(dir_run_id, "/DSSBatch.v46"), 
@@ -92,8 +96,8 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
   run <- cbind(x,  coef_random, row.names = NULL) %>% ## dataframe of coeffcients and variables of response
             tbl_df() %>%
-            mutate(id_run = rep(id_run, nrow(.))) %>%
-            select(id_run, everything())
+            mutate(id_run = rep(id_run, nrow(.)), region = rep(region, nrow(.))) %>%
+            select(id_run, region, everything())
   
   return(list(runs = run, coef_random = coef_random))
   
