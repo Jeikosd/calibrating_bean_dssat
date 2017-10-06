@@ -12,7 +12,7 @@ files_dssat <- function(dir_dssat, dir_experiment, out_dir){
   library(stringr)
   
   
-  files_necessary <- '.ECO|.SPE|.WTH|.BNX|.SOL'
+  files_necessary <- '.ECO|.SPE|.WTH|.BNX|.SOL|.T|.A'
   
   experiment <- list.files(dir_experiment, full.names = T) %>%
     data_frame(files = .) %>%
@@ -51,7 +51,7 @@ files_dssat <- function(dir_dssat, dir_experiment, out_dir){
 # CSMbatch(crop, name, paste0(dir_run, filename))
 
 
-CSMbatch <- function(crop, name, filename) {
+CSMbatch <- function(crop, name, filename, tn) {
   
   outbatch <- rbind(
     rbind(
@@ -62,7 +62,7 @@ CSMbatch <- function(crop, name, filename) {
                     "CO"))),            
     cbind(sprintf("%93-s %5s %6i %6i %6i %6i",            
                   paste0(name),
-                  1,  # Variable for treatment number            
+                  tn,  # Variable for treatment number            
                   1,  # Default value for RP element            
                   0,  # Default value for SQ element            
                   1,  # Default value for OP element            
@@ -105,39 +105,54 @@ make_id_run <- function(dir_run, id_cultivar){
 
 read_evaluate <- function(file){
   
-  read_table(file, skip = 2)
+  suppressMessages(suppressWarnings(read_table(file, skip = 2, col_types = cols())))
   
   
 }
-col_types = cols(
-  x = col_double(),
-  y = col_date(format = "")
-)
 
 # SDAT PDAT    EDAT    ADAT    MDAT    HDAT
 
 read_summary <- function(file){
   
-  summary_out <- read_table(file, skip = 3 , na = "*******",
+  summary_out <- suppressWarnings(read_table(file, skip = 3 , na = "*******",
                             col_types = cols(SDAT = col_character(),
                                              PDAT = col_character(), 
                                              EDAT = col_character(),
                                              ADAT = col_character(),
                                              MDAT = col_character(),
-                                             HDAT = col_character())) %>%
+                                             HDAT = col_character()))) %>%
     mutate(SDAT = as.Date(SDAT, format("%Y%j")), 
            PDAT = as.Date(PDAT, format("%Y%j")), 
            EDAT = as.Date(EDAT, format("%Y%j")),
            ADAT = as.Date(ADAT, format("%Y%j")),
            MDAT = as.Date(MDAT, format("%Y%j")),
            HDAT = as.Date(HDAT, format("%Y%j"))) %>%
-    select(SDAT, PDAT, everything())
+    dplyr::select(SDAT, PDAT, everything())
   
   
   return(summary_out)
 }
 
+## to read the x-file them keep the number of treatments to run 
 
-https://cran.r-project.org/web/packages/mapsapi/index.html
-http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
-https://github.com/benmarwick/huskydown 
+read_treatments <- function(file){
+
+
+  ##
+  find_TN <- file %>%
+    read_lines() %>%
+    str_detect(pattern ="TREATMENTS") %>%
+    which() %>%
+    -2
+
+  TN <- suppressWarnings(fread(file, autostart = find_TN, showProgress = FALSE)) %>%
+    tbl_df() %>%
+    magrittr::extract2(1)
+  
+  return(TN)
+}
+
+
+# https://cran.r-project.org/web/packages/mapsapi/index.html
+# http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
+# https://github.com/benmarwick/huskydown 

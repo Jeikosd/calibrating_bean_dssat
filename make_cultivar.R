@@ -2,12 +2,10 @@
 #
 ## check the cultivar to run into the file .CUL
 
-library(tidyverse)
-library(stringr)
-library(magrittr)
 
-file <- 'data/Experiment_data/Barichara/BNGRO046.CUL'
-cultivar <- 'IB0035'
+
+# file <- 'data/Experiment_data/Barichara/BNGRO046.CUL'
+# cultivar <- 'IB0035'
 
 ## sel_cul(file, cultivar)
 sel_cul <- function(file, cultivar){
@@ -43,10 +41,10 @@ make_cul_df <- function(cul_df, default_variables, vars_df){
   order_cul <- colnames(cul_df)
   
   cul_df <- cul_df %>%
-    select(!!default_variables) %>%
+    dplyr::select(!!default_variables) %>%
     cbind(vars_df) %>% 
     tbl_df() %>% 
-    select(!!order_cul)
+    dplyr::select(!!order_cul)
   
   return(cul_df)
 }
@@ -62,7 +60,8 @@ make_combination <- function(file, inputs_df, cultivar, k){
   
   header_cul <- read_lines(file) %>%
     str_subset(pattern = '@VAR') %>%
-    scan(text = ., what = "character")
+    scan(text = ., what = "character") 
+    
   
   find_cul <- read_lines(file) %>%
     str_detect(pattern =  cultivar) %>%
@@ -78,7 +77,9 @@ make_combination <- function(file, inputs_df, cultivar, k){
       str_replace_all(pattern = '(^[[:space:]])', "") %>%
       str_count(boundary("character")) 
     
-    cul_df <- read_fwf(file, fwf_widths(widths_cul, col_names = header_cul), skip = find_cul, n_max = 1, col_types = cols())
+    cul_df <- suppressWarnings(read_fwf(file, fwf_widths(widths_cul, col_names = header_cul), skip = find_cul, n_max = 1, col_types = cols())) %>%
+      suppressMessages() %>%
+      suppressWarnings()
     
     # match between the variables that we have in the inputs to the .CUL file  
     
@@ -94,12 +95,12 @@ make_combination <- function(file, inputs_df, cultivar, k){
     ## this make the random numbers following a uniform distribution
     variables_to_change  <- inputs_df %>%
       mutate(data = map2(min, max, runif, n = k)) %>%
-      select(coefficients, data) %>%
+      dplyr::select(coefficients, data) %>%
       unnest() %>%
       group_by(coefficients) %>%
       mutate(id = 1:length(coefficients)) %>%
       spread(coefficients, data) %>%
-      select(-id)
+      dplyr::select(-id)
       
     
     
@@ -127,13 +128,13 @@ make_combination <- function(file, inputs_df, cultivar, k){
 }
 
 
-make_combination(file = 'data/Experiment_data/Barichara/BNGRO046.CUL',
-                 inputs_df = read_csv(paste0('data/rangos_coeficientes.csv')), 
-                 cultivar = 'IB0035', 
-                 k = 1) 
+# make_combination(file = 'data/Experiment_data/Incertidumbre/BNGRO046.CUL',
+#                  inputs_df = read_csv(paste0('data/rangos_coeficientes.csv')), 
+#                  cultivar = 'IB0035', 
+#                  k = 1) 
 ## funcion para escribir el anterior cultivar en el archivo *.CUL
 
 
 
-file.remove(grep("*.OUT", list.files('D:/CIAT/Ayudas_2017/Patricia Alvarez/DSSAT_bean/data/Experiment_data/Barichara/', full.names = T), value = T))
+# file.remove(grep("*.OUT", list.files('D:/CIAT/Ayudas_2017/Patricia Alvarez/DSSAT_bean/data/Experiment_data/Barichara/', full.names = T), value = T))
 
