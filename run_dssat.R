@@ -1,9 +1,11 @@
 
-
+# HWAMS ADAPS MDAPS  CWAMS  to make sensitivity analysis
 library(tidyverse)
 library(stringr)
 library(magrittr)
 library(data.table)
+library(foreach)
+library(doSNOW) 
 
 source("make_cultivar.R")
 source("write_cul.R")
@@ -78,10 +80,13 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   # load the information Evaluate.OUT
   evaluate <- read_evaluate(file = paste0(dir_run_id, '/Evaluate.OUT'))
   
-  ## select HWAMS ADAPS MDAPS  CWAMS
-  ## them it is possible to select other group of variables
+  ## select or all the simulate variable
+  
   evaluate <- evaluate %>%
-    select(HWAMS, ADAPS, MDAPS,  CWAMS)
+    dplyr::select(ends_with('S'))
+
+  # evaluate <- evaluate %>%
+  #   select(HWAMS, ADAPS, MDAPS,  CWAMS)
   
   
   ## HWAH yield
@@ -107,6 +112,33 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
 }
 
-run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, 1, random_cul = NULL)
+run_mult_dssat <- function(n, dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, random_cul = NULL){
+  
+  iterators <- 1:n 
+  
+  out_simulation <- foreach(i = iterators) %do% {
+    
+    run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
+  
+  }
+  
+  runs <- map_df(out_simulation, extract2, "runs")
+    
+  coef_random <- map_df(out_simulation, extract2, "coef_random")
+  
+  
+  return(list(runs = runs, coef_random = coef_random))
+}
+
+
+cl <- makeCluster(10)
+registerDoSNOW(cl)  ## For Windows
+
+
+length_run <- length(models)
+
+pb <- txtProgressBar(max = length_run, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+
 
 
