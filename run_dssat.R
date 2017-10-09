@@ -112,11 +112,22 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
 }
 
-run_mult_dssat <- function(n, dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, random_cul = NULL){
+run_mult_dssat <- function(n_cores, n, dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, random_cul = NULL){
+  
+  cl <- makeCluster(n_cores)
+  registerDoSNOW(cl)  ## For Windows
+  
+  
+  length_run <- length(n)
+  
+  pb <- txtProgressBar(max = length_run, style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  
+  opts <- list(progress=progress)
   
   iterators <- 1:n 
   
-  out_simulation <- foreach(i = iterators) %do% {
+  out_simulation <- foreach(i = iterators) %dopar% {
     
     run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
   
@@ -126,19 +137,16 @@ run_mult_dssat <- function(n, dir_experiment, dir_dssat, dir_coef, cultivar, mod
     
   coef_random <- map_df(out_simulation, extract2, "coef_random")
   
-  
+  stopCluster(cl)
+  close(pb)
   return(list(runs = runs, coef_random = coef_random))
 }
 
 
-cl <- makeCluster(10)
-registerDoSNOW(cl)  ## For Windows
+
+run_mult_dssat
 
 
-length_run <- length(models)
-
-pb <- txtProgressBar(max = length_run, style = 3)
-progress <- function(n) setTxtProgressBar(pb, n)
 
 
 
