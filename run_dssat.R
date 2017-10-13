@@ -87,6 +87,10 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
   coef_random <- magrittr::extract2(random_cul, 2) # select the random coefficients
   
+  # coef_random %>%
+  #   mutate(`EM-FL` = round(`EM-FL`, digits = 1),
+  #          `FL-LF` = round(`FL-LF`, digits = 2))
+  # 
   x <- bind_cols(summary, evaluate)  # joint random coefficients with evaluate information
   
   
