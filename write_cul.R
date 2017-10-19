@@ -1,10 +1,10 @@
 ## write BNGRO046.CUL
 
 
-x <- make_combination(file = 'data/Experiment_data/Barichara/BNGRO046.CUL',
-                 inputs_df = read_csv(paste0('data/rangos_coeficientes.csv')), 
-                 cultivar = 'IB0035', 
-                 k = 1) 
+# x <- make_combination(file = 'data/Experiment_data/Barichara/BNGRO046.CUL',
+#                  inputs_df = read_csv(paste0('data/rangos_coeficientes.csv')), 
+#                  cultivar = 'IB0035', 
+#                  k = 1) 
 
 write_cul <- function(matrix_cul, out_dir){
   
@@ -65,6 +65,5 @@ write_cul <- function(matrix_cul, out_dir){
   sink()
 }
 
-write_cul(x, out_dir = 'Runs/')
+# write_cul(x, out_dir = 'Runs/')
 
-## CRGRO046 Modelo de Frijol utilizado 
