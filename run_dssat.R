@@ -28,7 +28,7 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
     
    
     random_cul <- make_combination(file = paste0(dir_experiment,  files_running$file_CUL), 
-                                   inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))) , 
+                                   inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
                                    cultivar, 
                                    k = 1) 
     
@@ -85,8 +85,10 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
     select(PDAT) # for now we select this variables to joint with evaluate
     
   
-  coef_random <- magrittr::extract2(random_cul, 2) # select the random coefficients
-  
+  coef_random <- magrittr::extract2(random_cul, 2) %>% # select the random coefficients
+    mutate(id_run = id_run) %>%
+    select(id_run, everything())
+                    
   # coef_random %>%
   #   mutate(`EM-FL` = round(`EM-FL`, digits = 1),
   #          `FL-LF` = round(`FL-LF`, digits = 2))
@@ -96,12 +98,12 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   
   run <- cbind(x,  coef_random, row.names = NULL) %>% ## dataframe of coeffcients and variables of response
             tbl_df() %>%
-            mutate(id_run = rep(id_run, nrow(.)), region = rep(region, nrow(.))) %>%
+            mutate(region = rep(region, nrow(.))) %>%
             select(id_run, region, everything())
   
   
   unlink(dir_run_id, recursive = TRUE)
-  return(list(runs = run, coef_random = coef_random))
+  return(list(runs = run, coef_random = coef_random, region = region))
   
   
  
@@ -161,7 +163,7 @@ run_mult_dssat <- function(){
   
   # iterators <- 1:n 
   
-  out_simulation <- foreach(i = 1:n) %dopar% {
+  out_simulation <- foreach(i = 1:2) %do% {
     
     run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
     
@@ -171,13 +173,23 @@ run_mult_dssat <- function(){
   
   coef_random <- map_df(out_simulation, extract2, "coef_random")
   
+  region <- map(out_simulation, extract2, "region") %>%
+    unlist(use.names = TRUE) %>%
+    unique
+    
   # stopCluster(cl)
   # close(pb)
   
   rm(out_simulation)
   # gc()
   gc(reset = T)
-  return(list(runs = runs, coef_random = coef_random))
+  # write the run in a csv file
+  
+  
+  
+  
+  return(list(runs = runs, coef_random = coef_random, region = region))
+  
 }
 # n_cores <- 2
 # n <- 100   # number of simulations (remember it is using runif values)

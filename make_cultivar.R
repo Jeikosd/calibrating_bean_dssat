@@ -81,6 +81,7 @@ make_combination <- function(file, inputs_df, cultivar, k){
       suppressMessages() %>%
       suppressWarnings()
     
+    
     # match between the variables that we have in the inputs to the .CUL file  
     
     variables_to_run <- inputs_df %>%
@@ -102,11 +103,31 @@ make_combination <- function(file, inputs_df, cultivar, k){
       spread(coefficients, data) %>%
       dplyr::select(-id)
       
+   
+    
+    format_cul <- suppressWarnings(read_fwf(file, fwf_widths(widths_cul, col_names = header_cul), skip = find_cul, n_max = 1, col_types = cols(.default = "c"))) %>%
+      suppressMessages() %>%
+      suppressWarnings() %>%
+      summarise_all(funs(num_decimals)) %>%
+      gather(vars_cul, digits)  %>%
+      filter(str_detect(vars_cul,  paste(variables_to_run, collapse = '|')))
+
+    variables_to_change <- variables_to_change %>%
+      gather(vars_cul, values) %>%
+      left_join( format_cul, by = 'vars_cul') %>%
+      mutate(values_adj = round(values, digits)) %>%
+      select(vars_cul, values_adj) %>%
+      group_by(vars_cul) %>%
+      mutate(id = 1:length(values_adj)) %>%
+      spread(vars_cul, values_adj) %>%
+      select(-id)
+      
+
     
     
     random_cul <- make_cul_df(cul_df, varaiables_static, variables_to_change)
     
-  
+    
     
     return(list(Cul_parameters = random_cul, coef_random = variables_to_change))
     

@@ -79,7 +79,7 @@ execute_dssat <- function(dir_run, model){
   # dir_run <- out_dir
   # model <- 'CRGRO046'
   setwd(dir_run)
-  system(paste0("DSCSM046.EXE " , model," B ", "DSSBatch.v46"), ignore.stdout = T, show.output.on.console = T)
+  system(paste0("DSCSM046.EXE " , model," B ", "DSSBatch.v46"), ignore.stdout = T, show.output.on.console = F)
   setwd('..')
   setwd('..')
   
@@ -165,6 +165,17 @@ read_region <- function(file){
   return(region)
   
 }
+
+num_decimals <- function(x) {
+  # stopifnot(class(x)=="numeric")
+  
+  n_decimals <- str_replace(x, "^.+[.]", "") %>%
+    str_count()
+  return(n_decimals)
+  
+}
+
+
 
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
