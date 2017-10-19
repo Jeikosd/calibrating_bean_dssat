@@ -1,0 +1,13 @@
+coeficiente,,min,max,salto
+EM-FL,Emergencia a floración,21,30,1
+FL-SH,tiempo primera flor a primera vaina,2,5,1
+FL-SD,tiempo primera flor a primera semilla,9,15,1
+SD-PM,tiempo entre primera semilla y madurez fisiológica,10,23,1
+FL-LF,tiempo primera flor a fin expansion hoja,9,12,1
+LFMAX,tasa máxima de fotosíntesis,0.9,1,0.02
+SLAVR,área foliar específica,245,325,10
+SIZLF,maximo tamaño de full leaf ,133,163,10
+WTPSD,máximo peso por semilla,0.35,0.6,0.05
+SFDUR,duración del llenado de grano por cohorte de vaina,14,19,1
+SDPDV,promedio semilla por vaina,3,4.5,0.5
+PODUR,tiempo requerido cultivar alcance final pod load,9,12,1
