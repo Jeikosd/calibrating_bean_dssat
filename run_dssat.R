@@ -163,7 +163,7 @@ run_mult_dssat <- function(){
   
   # iterators <- 1:n 
   
-  out_simulation <- foreach(i = 1:2) %do% {
+  out_simulation <- foreach(i = 1:n) %dopar% {
     
     run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
     

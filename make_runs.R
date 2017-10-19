@@ -19,7 +19,7 @@ dir_coef <- 'data/rangos_coeficientes.csv'
 cultivar <- 'IB0035'
 model <- 'CRGRO046'
 random_cul = NULL ## parameters to simulate in DSSAT
-n_cores <- 2
+n_cores <- 20
 n <- 10   # number of simulations (remember it is using runif values)
 
 registerDoFuture()
@@ -28,5 +28,8 @@ plan(cluster, workers = n_cores)
 dssat_sim <- run_mult_dssat()
 
 
-write_csv(dssat_sim$runs, paste0('outputs/', basename(dir_experiment), "_sim.csv"))
-# write_csv(dssat_sim$, paste0('outputs/', basename(dir_experiment), "_sim.csv"))
+write_csv(dssat_sim$runs, paste0('outputs/', dssat_sim$region, "_sim.csv"))
+write_csv(dssat_sim$coef_random, paste0('outputs/', dssat_sim$region, "_param.csv"))
+
+# write_csv(dssat_sim$runs, paste0('outputs/', basename(dir_experiment), "_sim.csv"))
+
