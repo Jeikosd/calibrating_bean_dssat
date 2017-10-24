@@ -23,31 +23,31 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   files_running <- files_dssat(dir_dssat, dir_experiment, dir_run_id)
   
   # make_cultivar
-  if(is.null(random_cul)){
-    
-    
-   
-    random_cul <- make_combination(file = paste0(dir_experiment,  files_running$file_CUL), 
-                                   inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
-                                   cultivar, 
-                                   k = 1) 
-    
-    # random_cul
-    
-    # write cultivar
-    
-    write_cul(random_cul$Cul_parameters, out_dir = dir_run_id)
-   
-    
-  }else{
-    
-    Cul_parameters <- random_cul$Cul_parameters %>%
-      filter(row_number()== id_run)
-    
-    # write cultivar
-    
-    write_cul(Cul_parameters, out_dir = dir_run_id)
-  }
+  # if(is.null(random_cul)){
+  #   
+  #   
+  #  
+  #   random_cul <- make_combination(file = paste0(dir_experiment,  files_running$file_CUL), 
+  #                                  inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
+  #                                  cultivar, 
+  #                                  k = 1) 
+  #   
+  #   # random_cul
+  #   
+  #   # write cultivar
+  #   
+  #   write_cul(random_cul$Cul_parameters, out_dir = dir_run_id)
+  #  
+  #   
+  # }else{
+  #   
+  #   Cul_parameters <- random_cul$Cul_parameters %>%
+  #     filter(row_number()== id_run)
+  #   
+  #   # write cultivar
+  #   
+  #   write_cul(Cul_parameters, out_dir = dir_run_id)
+  # }
 
   
   # read the treatments to run
@@ -199,6 +199,50 @@ run_mult_dssat <- function(){
 # run_mult_dssat(n, dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, random_cul = NULL)
 
 
-
+ # run_mult_dssat <- function(){
+ #  
+ #  # cl <- makeCluster(n_cores)
+ #  # registerDoSNOW(cl)  ## For Windows
+ #  
+ #  
+ #  length_run <- dim(X)[1]
+ #  X <- X %>%
+ #    tbl_df()
+ #  # 
+ #  # pb <- txtProgressBar(max = length_run, style = 3)
+ #  # progress <- function(n) setTxtProgressBar(pb, n)
+ #  # 
+ #  # opts <- list(progress=progress)
+ #  
+ #  # iterators <- 1:n 
+ #  
+ #  out_simulation <- foreach(i = 1:length_run) %dopar% {
+ #    
+ #    run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
+ #    
+ #  }
+ #  
+ #  runs <- map_df(out_simulation, extract2, "runs")
+ #  
+ #  coef_random <- map_df(out_simulation, extract2, "coef_random")
+ #  
+ #  region <- map(out_simulation, extract2, "region") %>%
+ #    unlist(use.names = TRUE) %>%
+ #    unique
+ #  
+ #  # stopCluster(cl)
+ #  # close(pb)
+ #  
+ #  rm(out_simulation)
+ #  # gc()
+ #  gc(reset = T)
+ #  # write the run in a csv file
+ #  
+ #  
+ #  
+ #  
+ #  return(list(runs = runs, coef_random = coef_random, region = region))
+ #  
+# }
 
 

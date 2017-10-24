@@ -3,11 +3,15 @@ library(stringr)
 library(magrittr)
 library(data.table)
 library(doFuture)
+library(sensitivity)
 
 source("make_cultivar.R")
 source("write_cul.R")
 source("main_functions.R")
 source("run_dssat.R")
+
+
+
 
 ## Configuracion
 
@@ -19,17 +23,117 @@ dir_coef <- 'data/rangos_coeficientes.csv'
 cultivar <- 'IB0035'
 model <- 'CRGRO046'
 random_cul = NULL ## parameters to simulate in DSSAT
-n_cores <- 20
-n <- 10   # number of simulations (remember it is using runif values)
+
+## making parameters set to run  necesario como hjacer un make_combination 2
+x1 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
+                               inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
+                               cultivar, 
+                               k = 100)$coef_random
+
+x2 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
+                       inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
+                       cultivar, 
+                       k = 100)$coef_random
+
+
+
+x <- sobol(model = NULL, X1 = x1$coef_random, X2 = x2$coef_random, order = 1, nboot = 1000)
+random_cul <- x$X
+
+n_cores <- 29
+# n <- 100000   # number of simulations (remember it is using runif values)
+n <- nrow(random_cul)
+
 
 registerDoFuture()
 plan(cluster, workers = n_cores)
 
 dssat_sim <- run_mult_dssat()
 
+runs <- extract2(dssat_sim, 'runs')
 
 write_csv(dssat_sim$runs, paste0('outputs/', dssat_sim$region, "_sim.csv"))
 write_csv(dssat_sim$coef_random, paste0('outputs/', dssat_sim$region, "_param.csv"))
 
 # write_csv(dssat_sim$runs, paste0('outputs/', basename(dir_experiment), "_sim.csv"))
+runs <- extract2(dssat_sim, 'runs')
+coef_random <- extract2(dssat_sim, 'coef_random')
 
+
+
+
+install.packages('sensitivity')
+library(sensitivity)
+## make statistics
+proof <- runs %>%
+  group_by(id_run) %>%
+  summarise(mean_yield = mean(HWAMS))
+
+hist(proof$mean_yield)
+
+to_sobol <- coef_random %>%
+  left_join(proof, by = 'id_run') 
+
+to_sobol %>%
+  filter(row_number()<=50000)
+
+
+
+x1 <- to_sobol %>%
+  sample_n(10) %>%
+  # filter(row_number()<=500) %>%
+  select(-id_run, -mean_yield) %>%
+  as.matrix()
+
+x2 <- to_sobol %>%
+  sample_n(10) %>%
+  # filter(row_number()>500) %>%
+  select(-id_run, -mean_yield) %>%
+  as.matrix()
+
+
+dssat_fun <- function(X){
+  
+  
+}  
+
+x <- sobol(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 10)
+# x$X <- x1
+# y <- x$X %>%
+#   tbl_df() %>%
+#   left_join(to_sobol, by = colnames(x$X)) %>%
+#   select(mean_yield) %>%
+#   magrittr::extract2(1) %>%
+#   as.matrix()
+y <- to_sobol %>%
+  summarise(mu = mean(mean_yield), sigma = sd(mean_yield))
+y <- rnorm(dim(x$X)[1], y$mu, y$sigma) %>%
+  as.matrix()
+
+tell(x, y) ; plot(x)
+str(x)
+tell( x, (y-mean(y))/sd(y) ); plot(x) #Standardised
+print(x)
+plot(x)
+
+## paginas sensitivity analysis
+
+https://github.com/jdherman/r-sensitivity-wrapper
+https://waterprogramming.wordpress.com/2012/09/19/starting-out-with-the-r-sensitivity-package/
+  https://cran.r-project.org/web/packages/sensitivity/sensitivity.pdf
+https://stackoverflow.com/questions/44275005/sobol-sensitivity-analysis-in-r
+file:///C:/Users/jmesa/Downloads/tutorial_pse%20(1).pdf
+https://stats.stackexchange.com/questions/43504/interpreting-results-from-sobol-sensitivity-analysis-in-r
+http://www.sciencedirect.com/science/article/pii/S0378429009001531
+
+LHS in R sensitivity
+https://gist.github.com/jkeirstead/1730440
+https://stackoverflow.com/questions/44275005/sobol-sensitivity-analysis-in-r
+  
+
+http://www.fromthebottomoftheheap.net/2017/10/19/first-steps-with-mrf-smooths/?utm_content=buffer4d972&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
+http://naniar.njtierney.com/
+  http://visdat.njtierney.com/
+  https://flowingdata.com/2017/10/19/american-daily-routine/?utm_content=buffera2723&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
+
+## proof with run_dssat function

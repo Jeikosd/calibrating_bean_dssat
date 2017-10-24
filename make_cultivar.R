@@ -34,6 +34,7 @@ sel_cul <- function(file, cultivar){
 
 make_cul_df <- function(cul_df, default_variables, vars_df){
   
+  ## try to do this funcion that select automatically the order of the columns
   # cul_df
   # default_variables <- varaiables_static
   # vars_df <- variables_to_change
@@ -46,7 +47,11 @@ make_cul_df <- function(cul_df, default_variables, vars_df){
     tbl_df() %>% 
     dplyr::select(!!order_cul)
   
-  return(cul_df)
+  #
+  # vars_default <- cul_df %>%
+  #   dplyr::select(!!default_variables)
+  
+  return(cul_df = cul_df)
 }
 ## 
 
@@ -129,7 +134,8 @@ make_combination <- function(file, inputs_df, cultivar, k){
     
     
     
-    return(list(Cul_parameters = random_cul, coef_random = variables_to_change))
+    return(list(Cul_parameters = random_cul,
+                coef_random = variables_to_change))
     
     
     # inputs_df %>%
