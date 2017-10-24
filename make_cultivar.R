@@ -108,7 +108,14 @@ make_combination <- function(file, inputs_df, cultivar, k){
       spread(coefficients, data) %>%
       dplyr::select(-id)
       
-   
+    ## this make the random numbers following a LHS methodology (Latin Hypercube Sampling)
+    
+    variables_to_change  <- inputs_df %>%
+      mutate(LHS = pmap(list(name = coefficients, min = min, max = max), AddFactor)) %>%
+      select(LHS) %>%
+      unnest()
+    
+    ####
     
     format_cul <- suppressWarnings(read_fwf(file, fwf_widths(widths_cul, col_names = header_cul), skip = find_cul, n_max = 1, col_types = cols(.default = "c"))) %>%
       suppressMessages() %>%

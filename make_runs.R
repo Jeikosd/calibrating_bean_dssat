@@ -29,7 +29,7 @@ random_cul = NULL ## parameters to simulate in DSSAT
 x1 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
                                inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
                                cultivar, 
-                               k = 100)$coef_random
+                               k = 100)
 
 x2 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
                        inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
