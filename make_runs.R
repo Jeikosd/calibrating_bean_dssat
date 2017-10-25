@@ -137,4 +137,6 @@ http://naniar.njtierney.com/
   http://visdat.njtierney.com/
   https://flowingdata.com/2017/10/19/american-daily-routine/?utm_content=buffera2723&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
 
-## proof with run_dssat function
+## Generate a Monte Carlo sample with Sobol' LDQR sequence
+https://gist.github.com/jkeirstead/1730440
+https://github.com/jdherman/r-sensitivity-wrapper ## Command-line wrapper for the R Sensitivity Package

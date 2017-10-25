@@ -111,9 +111,20 @@ make_combination <- function(file, inputs_df, cultivar, k){
     ## this make the random numbers following a LHS methodology (Latin Hypercube Sampling)
     
     variables_to_change  <- inputs_df %>%
+      # select(coefficients, min, max) %>%
+      # mutate(name = coefficients)%>%
+      # select(name, min, max) %>%
+      invoke_rows(.f = AddFactor, .collate = "cols")
+      invoke_rows(lift_vd(AddFactor)())
+      by_row(AddFactor, list(name = coefficients, min = min, max = max))
+      # mutate(LHS = map_df(list(name = coefficients, min = min, max = max), AddFactor))
       mutate(LHS = pmap(list(name = coefficients, min = min, max = max), AddFactor)) %>%
       select(LHS) %>%
-      unnest()
+      invoke_rows(.f = extract2, 1)
+      extract2(1) %>%
+      map_df(extract2, 1)
+      
+      
     
     ####
     
