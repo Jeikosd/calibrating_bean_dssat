@@ -58,10 +58,14 @@ make_cul_df <- function(cul_df, default_variables, vars_df){
 # inputs_df <- read_csv(paste0('data/rangos_coeficientes.csv'))
 # k cantidad de numeros aleatorios
 
-
-make_combination <- function(file, inputs_df, cultivar, k){
+# make_cul(file, random_vars, cultivar)
+make_cul<- function(file, variables_to_change, cultivar){
   
-  # This are the parameters @VAR#  VRNAME.......... EXPNO   ECO#  CSDL PPSEN EM-FL FL-SH FL-SD SD-PM FL-LF LFMAX SLAVR SIZLF  XFRT WTPSD SFDUR SDPDV PODUR THRSH SDPRO SDLIP
+  # file: the .CUL file
+  # variables_to_change: is the random parameters
+  # cultivar: the name of the cultivar
+  
+  
   
   header_cul <- read_lines(file) %>%
     str_subset(pattern = '@VAR') %>%
@@ -98,33 +102,10 @@ make_combination <- function(file, inputs_df, cultivar, k){
       magrittr::extract2(1)
     
     
-    ## this make the random numbers following a uniform distribution
-    variables_to_change  <- inputs_df %>%
-      mutate(data = map2(min, max, runif, n = k)) %>%
-      dplyr::select(coefficients, data) %>%
-      unnest() %>%
-      group_by(coefficients) %>%
-      mutate(id = 1:length(coefficients)) %>%
-      spread(coefficients, data) %>%
-      dplyr::select(-id)
-      
-    ## this make the random numbers following a LHS methodology (Latin Hypercube Sampling)
+   
+     
+    # variables_to_change <- random_vars
     
-    variables_to_change  <- inputs_df %>%
-      # select(coefficients, min, max) %>%
-      # mutate(name = coefficients)%>%
-      # select(name, min, max) %>%
-      invoke_rows(.f = AddFactor, .collate = "cols")
-      invoke_rows(lift_vd(AddFactor)())
-      by_row(AddFactor, list(name = coefficients, min = min, max = max))
-      # mutate(LHS = map_df(list(name = coefficients, min = min, max = max), AddFactor))
-      mutate(LHS = pmap(list(name = coefficients, min = min, max = max), AddFactor)) %>%
-      select(LHS) %>%
-      invoke_rows(.f = extract2, 1)
-      extract2(1) %>%
-      map_df(extract2, 1)
-      
-      
     
     ####
     
@@ -152,8 +133,7 @@ make_combination <- function(file, inputs_df, cultivar, k){
     
     
     
-    return(list(Cul_parameters = random_cul,
-                coef_random = variables_to_change))
+    return(Cul_parameters = random_cul)
     
     
     # inputs_df %>%

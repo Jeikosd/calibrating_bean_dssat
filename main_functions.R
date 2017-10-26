@@ -176,6 +176,35 @@ num_decimals <- function(x) {
 }
 
 
+make_sampling <- function(x, k){
+  
+  ## this make the random numbers following a uniform distribution
+  # variables_to_change  <- x%>%
+  #   mutate(data = map2(min, max, runif, n = k)) %>%
+  #   dplyr::select(coefficients, data) %>%
+  #   unnest() %>%
+  #   group_by(coefficients) %>%
+  #   mutate(id = 1:length(coefficients)) %>%
+  #   spread(coefficients, data) %>%
+  #   dplyr::select(-id)
+  
+  ## this make the random numbers following a LHS methodology (Latin Hypercube Sampling)
+  
+  variables_to_change  <- x %>%
+    mutate(LHS = pmap(list(name = coefficients, min = min, max = max), AddFactor_mod)) %>%
+    dplyr::select(LHS) %>%
+    unnest() %>%
+    as.matrix() %>%
+    AoE.LatinHypercube(k, .) %>%
+    as.data.frame
+}
+
+
+AddFactor_mod <- function(lambda = "qunif", name, min, max){
+  
+  AddFactor(lambda = lambda, name = name, min = min, max = max) %>%
+    tbl_df()
+}
 
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html

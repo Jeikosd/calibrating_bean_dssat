@@ -10,7 +10,7 @@
 # 
 # x <- foo()
 
-run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, id_run, random_cul = NULL){
+run_dssat <- function(dir_experiment, dir_dssat, cultivar, model, dir_run, id_run, cul_df) {
   
   # dir_base <- paste0(dir_run, id_run)
   
@@ -21,8 +21,13 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
   # copy files necessary to run
   
   files_running <- files_dssat(dir_dssat, dir_experiment, dir_run_id)
+
+  # write cultivar
+  Cul_parameters <- cul_df %>%
+        filter(row_number()== id_run)
   
-  # make_cultivar
+  write_cul(Cul_parameters, out_dir = dir_run_id)
+  
   # if(is.null(random_cul)){
   #   
   #   
@@ -85,25 +90,28 @@ run_dssat <- function(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_
     select(PDAT) # for now we select this variables to joint with evaluate
     
   
-  coef_random <- magrittr::extract2(random_cul, 2) %>% # select the random coefficients
-    mutate(id_run = id_run) %>%
-    select(id_run, everything())
+  # coef_random <- magrittr::extract2(random_cul, 2) %>% # select the random coefficients
+  #   mutate(id_run = id_run) %>%
+  #   select(id_run, everything())
                     
   # coef_random %>%
   #   mutate(`EM-FL` = round(`EM-FL`, digits = 1),
   #          `FL-LF` = round(`FL-LF`, digits = 2))
   # 
-  x <- bind_cols(summary, evaluate)  # joint random coefficients with evaluate information
+  run <- bind_cols(summary, evaluate) %>%  # joint random coefficients with evaluate information
+          mutate(region = rep(region, nrow(.))) %>%
+          mutate(id_run = rep(id_run, nrow(.)))  %>%
+          select(id_run, region, everything())
   
   
-  run <- cbind(x,  coef_random, row.names = NULL) %>% ## dataframe of coeffcients and variables of response
-            tbl_df() %>%
-            mutate(region = rep(region, nrow(.))) %>%
-            select(id_run, region, everything())
+  # run <- cbind(x,  coef_random, row.names = NULL) %>% ## dataframe of coeffcients and variables of response
+            # tbl_df() %>%
+            # mutate(region = rep(region, nrow(.))) %>%
+            # select(id_run, region, everything())
   
   
   unlink(dir_run_id, recursive = TRUE)
-  return(list(runs = run, coef_random = coef_random, region = region))
+  return(run)
   
   
  
@@ -154,7 +162,7 @@ run_mult_dssat <- function(){
   # registerDoSNOW(cl)  ## For Windows
   
   
-  length_run <- n
+  # length_run <- n
   # 
   # pb <- txtProgressBar(max = length_run, style = 3)
   # progress <- function(n) setTxtProgressBar(pb, n)
@@ -165,17 +173,19 @@ run_mult_dssat <- function(){
   
   out_simulation <- foreach(i = 1:n) %dopar% {
     
-    run_dssat(dir_experiment, dir_dssat, dir_coef, cultivar, model, dir_run, i, random_cul)
+    run_dssat(dir_experiment, dir_dssat, cultivar, model, dir_run, i, cul_df)
     
   }
   
-  runs <- map_df(out_simulation, extract2, "runs")
+  runs <- out_simulation %>%
+    bind_rows()
+  # runs <- map_df(out_simulation, extract2, "runs")
   
-  coef_random <- map_df(out_simulation, extract2, "coef_random")
+  # coef_random <- map_df(out_simulation, extract2, "coef_random")
   
-  region <- map(out_simulation, extract2, "region") %>%
-    unlist(use.names = TRUE) %>%
-    unique
+  # region <- map(out_simulation, extract2, "region") %>%
+    # unlist(use.names = TRUE) %>%
+    # unique
     
   # stopCluster(cl)
   # close(pb)
@@ -186,9 +196,9 @@ run_mult_dssat <- function(){
   # write the run in a csv file
   
   
+  return(runs)
   
-  
-  return(list(runs = runs, coef_random = coef_random, region = region))
+  # return(list(runs = runs, coef_random = coef_random, region = region))
   
 }
 # n_cores <- 2

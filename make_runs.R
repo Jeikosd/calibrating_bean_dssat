@@ -5,6 +5,7 @@ library(data.table)
 library(doFuture)
 library(sensitivity)
 library(rrepast)  ### libreria para LHS (Latin hypercube Sampling)
+library(pse) ### libreria para LHS (Latin hypercube Sampling)
 
 source("make_cultivar.R")
 source("write_cul.R")
@@ -23,35 +24,53 @@ dir_dssat <- 'C:/DSSAT46/'
 dir_coef <- 'data/rangos_coeficientes_ajustado.csv'
 cultivar <- 'IB0035'
 model <- 'CRGRO046'
-random_cul = NULL ## parameters to simulate in DSSAT
+# random_cul = NULL ## parameters to simulate in DSSAT
+cul_file <- paste0(dir_experiment, 'BNGRO046.CUL')
 
-## making parameters set to run  necesario como hjacer un make_combination 2
-x1 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
-                               inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
-                               cultivar, 
-                               k = 100)
+inputs_df <- suppressMessages(suppressWarnings(read_csv(dir_coef)))
 
-x2 <- make_combination(file = paste0(dir_experiment,  'BNGRO046.CUL'), 
-                       inputs_df = suppressMessages(suppressWarnings(read_csv(dir_coef))), 
-                       cultivar, 
-                       k = 100)$coef_random
+
+x1 <- make_sampling(inputs_df, 20) 
+
+x2 <- make_sampling(inputs_df, 20) 
 
 
 
-x <- sobol(model = NULL, X1 = x1$coef_random, X2 = x2$coef_random, order = 1, nboot = 1000)
-random_cul <- x$X
+sens_dssat <- sobol(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 1000)
 
-n_cores <- 29
+
+random_vars <- sens_dssat$X %>%
+  tbl_df
+
+cul_df <- make_cul(file = cul_file, random_vars, cultivar)
+n <- nrow(cul_df) 
+## proof
+## id_run = 1
+# run_dssat(dir_experiment, dir_dssat, cultivar, model, dir_run, id_run, cul_df)
+
+n_cores <- 3
 # n <- 100000   # number of simulations (remember it is using runif values)
-n <- nrow(random_cul)
+
+
+
 
 
 registerDoFuture()
-plan(cluster, workers = n_cores)
+plan(future::cluster, workers = n_cores)
 
 dssat_sim <- run_mult_dssat()
 
-runs <- extract2(dssat_sim, 'runs')
+y <- dssat_sim %>%
+  group_by(id_run) %>%
+  summarise(yield_mean = mean(HWAMS)) %>%
+  select(yield_mean) %>%
+  as.matrix()
+
+sensitivity::tell(sens_dssat, (y-mean(y) /sd(y))) ; plot(sens_dssat)
+sensitivity::tell(sens_dssat, y) ; plot(sens_dssat)
+
+Plot.Sobol(sens_dssat, type = 1)
+# runs <- extract2(dssat_sim, 'runs')
 
 write_csv(dssat_sim$runs, paste0('outputs/', dssat_sim$region, "_sim.csv"))
 write_csv(dssat_sim$coef_random, paste0('outputs/', dssat_sim$region, "_param.csv"))
@@ -111,7 +130,7 @@ y <- to_sobol %>%
 y <- rnorm(dim(x$X)[1], y$mu, y$sigma) %>%
   as.matrix()
 
-tell(x, y) ; plot(x)
+sensitivity::tell(x, y) ; plot(x)
 str(x)
 tell( x, (y-mean(y))/sd(y) ); plot(x) #Standardised
 print(x)
