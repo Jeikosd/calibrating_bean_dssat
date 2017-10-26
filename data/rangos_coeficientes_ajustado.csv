@@ -1,4 +1,4 @@
-coeficiente,,min,max,salto
+coefficients,info,min,max,by
 EM-FL,Emergencia a floración,21,30,1
 FL-SH,tiempo primera flor a primera vaina,2,5,1
 FL-SD,tiempo primera flor a primera semilla,9,15,1
