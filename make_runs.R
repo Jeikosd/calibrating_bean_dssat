@@ -30,13 +30,15 @@ cul_file <- paste0(dir_experiment, 'BNGRO046.CUL')
 inputs_df <- suppressMessages(suppressWarnings(read_csv(dir_coef)))
 
 
-x1 <- make_sampling(inputs_df, 20) 
+x1 <- make_sampling(inputs_df, 12000) 
 
-x2 <- make_sampling(inputs_df, 20) 
+x2 <- make_sampling(inputs_df, 12000) 
 
 
 
-sens_dssat <- sobol(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 1000)
+sens_dssat <- sobol(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 5000)
+sens_dssat_Eff <- sobolEff(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 0)
+
 
 
 random_vars <- sens_dssat$X %>%
@@ -48,16 +50,16 @@ n <- nrow(cul_df)
 ## id_run = 1
 # run_dssat(dir_experiment, dir_dssat, cultivar, model, dir_run, id_run, cul_df)
 
-n_cores <- 3
+n_cores <- 28
 # n <- 100000   # number of simulations (remember it is using runif values)
 
 
 
-
+options(future.globals.maxSize= 891289600)
 
 registerDoFuture()
 plan(future::cluster, workers = n_cores)
-
+# future.globals.maxSize
 dssat_sim <- run_mult_dssat()
 
 y <- dssat_sim %>%
@@ -68,11 +70,23 @@ y <- dssat_sim %>%
 
 sensitivity::tell(sens_dssat, (y-mean(y) /sd(y))) ; plot(sens_dssat)
 sensitivity::tell(sens_dssat, y) ; plot(sens_dssat)
+sensitivity::tell(sens_dssat_Eff, y) ; plot(sens_dssat_Eff)
+sensitivity::tell(sens_dssat_Eff, (y-mean(y) /sd(y))) ; plot(sens_dssat)
+
 
 Plot.Sobol(sens_dssat, type = 1)
+Plot.Sobol(sens_dssat_Eff, type = 1)
 # runs <- extract2(dssat_sim, 'runs')
 
-write_csv(dssat_sim$runs, paste0('outputs/', dssat_sim$region, "_sim.csv"))
+write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars.csv"))
+write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response.csv"))
+
+saveRDS(sens_dssat, paste0('outputs/', basename(dir_experiment), "_sobol.rds"))
+saveRDS(sens_dssat_Eff, paste0('outputs/', basename(dir_experiment), "_sobol_Eff.rds"))
+
+# to read
+mod2 <- readRDS("mymodel.rds")
+
 write_csv(dssat_sim$coef_random, paste0('outputs/', dssat_sim$region, "_param.csv"))
 
 # write_csv(dssat_sim$runs, paste0('outputs/', basename(dir_experiment), "_sim.csv"))
