@@ -30,19 +30,25 @@ cul_file <- paste0(dir_experiment, 'BNGRO046.CUL')
 inputs_df <- suppressMessages(suppressWarnings(read_csv(dir_coef)))
 
 
-x1 <- make_sampling(inputs_df, 12000) 
+x1 <- make_sampling(inputs_df, 10000) 
 
-x2 <- make_sampling(inputs_df, 12000) 
+x2 <- make_sampling(inputs_df, 10000) 
 
 
 
 sens_dssat <- sobol(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 5000)
 sens_dssat_Eff <- sobolEff(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 0)
+sens_dssat_sobol2007 <- sobol2007(model = NULL, X1 = x1, X2 = x2, order = 1, nboot = 5000)
 
+# to normal sobol
+# random_vars <- sens_dssat$X %>%
+  # tbl_df
 
-
-random_vars <- sens_dssat$X %>%
+# to sobol 2007 about small indices
+random_vars <- sens_dssat_sobol2007$X %>%
   tbl_df
+
+
 
 cul_df <- make_cul(file = cul_file, random_vars, cultivar)
 n <- nrow(cul_df) 
@@ -64,7 +70,7 @@ dssat_sim <- run_mult_dssat()
 
 y <- dssat_sim %>%
   group_by(id_run) %>%
-  summarise(yield_mean = mean(HWAMS)) %>%
+  summarise(yield_mean = mean(`H#UMS`)) %>%
   select(yield_mean) %>%
   as.matrix()
 
@@ -72,20 +78,33 @@ sensitivity::tell(sens_dssat, (y-mean(y) /sd(y))) ; plot(sens_dssat)
 sensitivity::tell(sens_dssat, y) ; plot(sens_dssat)
 sensitivity::tell(sens_dssat_Eff, y) ; plot(sens_dssat_Eff)
 sensitivity::tell(sens_dssat_Eff, (y-mean(y) /sd(y))) ; plot(sens_dssat)
+sensitivity::tell(sens_dssat_sobol2007, (y-mean(y) /sd(y))) ; plot(sens_dssat_sobol2007)
 
 
 Plot.Sobol(sens_dssat, type = 1)
 Plot.Sobol(sens_dssat_Eff, type = 1)
+Plot.Sobol(sens_dssat_sobol2007, type = 1)
+
+
+
+
+
 # runs <- extract2(dssat_sim, 'runs')
 
 write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars.csv"))
 write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response.csv"))
 
+write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars_sobol2007.csv"))
+write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response_sobol2007.csv"))
+
+
 saveRDS(sens_dssat, paste0('outputs/', basename(dir_experiment), "_sobol.rds"))
 saveRDS(sens_dssat_Eff, paste0('outputs/', basename(dir_experiment), "_sobol_Eff.rds"))
+saveRDS(sens_dssat_sobol2007, paste0('outputs/', basename(dir_experiment), "_sobol2007.rds"))
+
 
 # to read
-mod2 <- readRDS("mymodel.rds")
+mod2 <- readRDS(paste0('outputs/', basename(dir_experiment), "_sobol2007.rds"))
 
 write_csv(dssat_sim$coef_random, paste0('outputs/', dssat_sim$region, "_param.csv"))
 
