@@ -206,23 +206,19 @@ make_sampling <- function(x, k){
     as.data.frame
 }
 
-summarise_sim <- function(x, group, ...){
-  
-  vars <- quos(...)
-  mean_name <- paste0("mean_", quo(list(...)))
-  group <- quo(group)
-  
-  print(group)
-  print(mean_name)
-  
-  x %>%
-    dplyr::group_by(!!group) %>%
-    dplyr::summarise(!!!mean_name := mean(!!!vars))
+summarise_sim <- function(df, group, x){
+
+ 
+  df %>%
+    dplyr::group_by_at(group) %>%
+    dplyr::summarise_at(.vars = x, .funs = mean, na.rm = T) %>%
+    select_at(x)
+    # dplyr::rename_at(x, funs(paste0("mean_", .)))
 }
 
-
-
-
+tell_sobol <- function(sobo_model, vars){
+  
+}
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
 # http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
