@@ -176,6 +176,13 @@ num_decimals <- function(x) {
 }
 
 
+AddFactor_mod <- function(lambda = "qunif", name, min, max){
+  
+  AddFactor(lambda = lambda, name = name, min = min, max = max) %>%
+    tbl_df()
+}
+
+
 make_sampling <- function(x, k){
   
   ## this make the random numbers following a uniform distribution
@@ -199,12 +206,22 @@ make_sampling <- function(x, k){
     as.data.frame
 }
 
-
-AddFactor_mod <- function(lambda = "qunif", name, min, max){
+summarise_sim <- function(x, group, ...){
   
-  AddFactor(lambda = lambda, name = name, min = min, max = max) %>%
-    tbl_df()
+  vars <- quos(...)
+  mean_name <- paste0("mean_", quo(list(...)))
+  group <- quo(group)
+  
+  print(group)
+  print(mean_name)
+  
+  x %>%
+    dplyr::group_by(!!group) %>%
+    dplyr::summarise(!!!mean_name := mean(!!!vars))
 }
+
+
+
 
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
