@@ -4,6 +4,8 @@ library(tidyverse)
 library(data.table)
 library(rlang)
 library(seplyr)
+library(rrepast)
+library(forcats)
 # library(dtplyr)
 
 
@@ -15,13 +17,12 @@ sens_dssat <- readRDS(paste0('outputs/', basename(dir_experiment), "_sobol2007.r
 
 # choose the variable to make the analysis
 
-variable <- quo(`H#UMS`)
-dssat_sim %>%
-  select(id_run, !!variable)
-  select(id_run, !!enquo(variable))
+y <- summarise_group(dssat_sim, group = "id_run", x ="MDAPS") 
 
-  summarise_sim(dssat_sim, group = "id_run", x = c("H#UMS", "ADAPS"))  
+make_sobol <- tell_sobol(sens_dssat, y)
 
+
+graphs_sobol(make_sobol, type = 1)
   
 y <- dssat_sim %>%
   group_by(id_run) %>%

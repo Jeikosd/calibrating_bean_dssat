@@ -206,7 +206,7 @@ make_sampling <- function(x, k){
     as.data.frame
 }
 
-summarise_sim <- function(df, group, x){
+summarise_group <- function(df, group, x){
 
  
   df %>%
@@ -216,9 +216,74 @@ summarise_sim <- function(df, group, x){
     # dplyr::rename_at(x, funs(paste0("mean_", .)))
 }
 
-tell_sobol <- function(sobo_model, vars){
+tell_sobol <- function(sobol_model, y){
   
+  y <- as.matrix(y)
+  sobol_model <- sensitivity::tell(sobol_model, (y-mean(y) /sd(y)))
+   
+  return(sobo_model)
 }
+
+
+graphs_sobol <- function(sobol_model, type){
+      
+  # sobol_model <- make_sobol
+    if (is.null(sobol_model$S)) {
+      stop("Invalid Sobol object instance!")
+    }
+  
+    switch(type, `1` = {
+        
+      variable <- colnames(sobol_model$y)
+      
+      main_effect <- sobol_model$S %>%
+        tbl_df() %>%
+        mutate(params = rownames(.)) %>%
+        mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
+        mutate(effect = 'Main_Effect') 
+        
+      
+      p <- ggplot() + 
+        geom_bar(data = main_effect, aes(x = params, y = original), stat = "identity") +
+        geom_errorbar(data = main_effect, aes(ymin = `min. c.i.`, ymax = `max. c.i.`, x = params), colour = "black", width = 0.1) +
+        labs(x = expression(paste("Parameters")), y = expression(S[i])) +
+        ggtitle(variable) +
+        theme_bw()
+                        
+    }, `2` = {
+      
+      total_effect <- sobol_model$T %>%
+        tbl_df() %>%
+        mutate(params = rownames(.)) %>%
+        mutate(effect = 'Total_Effect') 
+      
+      prueba <-  suppressWarnings(dplyr::bind_rows(main_effect, total_effect)) %>%
+        mutate(params = fct_reorder(params, original, .desc = TRUE))
+  
+     
+      
+     p <- ggplot() + 
+        geom_bar(data = prueba, aes(x = params, y = original, fill = effect),
+                 stat = "identity",
+                 position = "dodge") +
+        scale_fill_grey(start = 0.4, end = 0.8)  +
+        theme_bw() +
+        ggtitle(variable) +
+        labs(x = expression(paste("Parameters")), y = expression(S[i]))
+        
+        
+    
+
+    }, stop("Invalid chart type!"))
+  
+  
+ 
+  
+
+
+    return(p)
+  }
+
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
 # http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
