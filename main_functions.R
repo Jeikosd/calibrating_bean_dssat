@@ -221,12 +221,15 @@ tell_sobol <- function(sobol_model, y){
   y <- as.matrix(y)
   sobol_model <- sensitivity::tell(sobol_model, (y-mean(y) /sd(y)))
    
-  return(sobo_model)
+  return(sobol_model)
 }
 
 
 graphs_sobol <- function(sobol_model, type){
       
+  
+  # Type = 1 make only the main effects
+  # Type = 2 make both total effects and main effects
   # sobol_model <- make_sobol
     if (is.null(sobol_model$S)) {
       stop("Invalid Sobol object instance!")
@@ -249,6 +252,8 @@ graphs_sobol <- function(sobol_model, type){
         labs(x = expression(paste("Parameters")), y = expression(S[i])) +
         ggtitle(variable) +
         theme_bw()
+      
+      ggsave(paste0(path, 'sobol_main_effect_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
                         
     }, `2` = {
       
@@ -271,7 +276,7 @@ graphs_sobol <- function(sobol_model, type){
         ggtitle(variable) +
         labs(x = expression(paste("Parameters")), y = expression(S[i]))
         
-        
+     # ggsave(paste0(path, 'sobol_MT_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
     
 
     }, stop("Invalid chart type!"))
