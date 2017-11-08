@@ -8,7 +8,7 @@ library(rrepast)
 library(forcats)
 # library(dtplyr)
 
-
+source('main_functions.R')
 dir_experiment <- "data/Experiment_data/Barichara/"
 dssat_sim <- fread(paste0('outputs/', basename(dir_experiment), "_response_sobol2007.csv"))
 dssat_sim <- dssat_sim %>%
@@ -22,8 +22,14 @@ y <- summarise_group(dssat_sim, group = "id_run", x ="MDAPS")
 make_sobol <- tell_sobol(sens_dssat, y)
 
 
-graphs_sobol(make_sobol, type = 1)
-  
+graphs_sobol(make_sobol, type = 2)
+ggsave("mtcars.pdf")  
+
+## 
+
+
+
+
 y <- dssat_sim %>%
   group_by(id_run) %>%
   dplyr::summarise(mean(!!variable)) %>%

@@ -253,9 +253,17 @@ graphs_sobol <- function(sobol_model, type){
         ggtitle(variable) +
         theme_bw()
       
-      ggsave(paste0(path, 'sobol_main_effect_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
+      # ggsave(paste0(path, 'sobol_main_effect_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
                         
     }, `2` = {
+      
+      variable <- colnames(sobol_model$y)
+      
+      main_effect <- sobol_model$S %>%
+        tbl_df() %>%
+        mutate(params = rownames(.)) %>%
+        mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
+        mutate(effect = 'Main_Effect') 
       
       total_effect <- sobol_model$T %>%
         tbl_df() %>%
