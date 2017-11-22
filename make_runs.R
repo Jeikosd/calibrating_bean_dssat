@@ -91,16 +91,19 @@ Plot.Sobol(sens_dssat_sobol2007, type = 1)
 
 # runs <- extract2(dssat_sim, 'runs')
 
-write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars.csv"))
-write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response.csv"))
-
-write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars_sobol2007.csv"))
-write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response_sobol2007.csv"))
+# write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars.csv"))
+# write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response.csv"))
+# write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response_stress.csv"))
 
 
-saveRDS(sens_dssat, paste0('outputs/', basename(dir_experiment), "_sobol.rds"))
-saveRDS(sens_dssat_Eff, paste0('outputs/', basename(dir_experiment), "_sobol_Eff.rds"))
-saveRDS(sens_dssat_sobol2007, paste0('outputs/', basename(dir_experiment), "_sobol2007.rds"))
+# write_csv(random_vars, paste0('outputs/', basename(dir_experiment), "_random_vars_sobol2007.csv"))
+# write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response_sobol2007.csv"))
+write_csv(dssat_sim, paste0('outputs/', basename(dir_experiment), "_response_sobol2007_stress.csv"))
+
+# saveRDS(sens_dssat, paste0('outputs/', basename(dir_experiment), "_sobol.rds"))
+# saveRDS(sens_dssat_Eff, paste0('outputs/', basename(dir_experiment), "_sobol_Eff.rds"))
+# saveRDS(sens_dssat_sobol2007, paste0('outputs/', basename(dir_experiment), "_sobol2007.rds"))
+saveRDS(sens_dssat_sobol2007, paste0('outputs/', basename(dir_experiment), "_sobol2007_stress.rds"))
 
 
 # to read
