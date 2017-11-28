@@ -18,7 +18,7 @@ files_dssat <- function(dir_dssat, dir_experiment, out_dir){
     data_frame(files = .) %>%
     filter(str_detect(files,files_necessary)) %>%
     magrittr::extract2(1)
-    
+  
   x_file <- list.files(dir_experiment, full.names = T) %>%
     data_frame(files = .) %>%
     filter(str_detect(files, '.BNX')) %>%
@@ -115,12 +115,12 @@ read_evaluate <- function(file){
 read_summary <- function(file){
   
   summary_out <- suppressWarnings(read_table(file, skip = 3 , na = "*******",
-                            col_types = cols(SDAT = col_character(),
-                                             PDAT = col_character(), 
-                                             EDAT = col_character(),
-                                             ADAT = col_character(),
-                                             MDAT = col_character(),
-                                             HDAT = col_character()))) %>%
+                                             col_types = cols(SDAT = col_character(),
+                                                              PDAT = col_character(), 
+                                                              EDAT = col_character(),
+                                                              ADAT = col_character(),
+                                                              MDAT = col_character(),
+                                                              HDAT = col_character()))) %>%
     mutate(SDAT = as.Date(SDAT, format("%Y%j")), 
            PDAT = as.Date(PDAT, format("%Y%j")), 
            EDAT = as.Date(EDAT, format("%Y%j")),
@@ -136,15 +136,15 @@ read_summary <- function(file){
 ## to read the x-file them keep the number of treatments to run 
 
 read_treatments <- function(file){
-
-
+  
+  
   ##
   find_TN <- file %>%
     read_lines() %>%
     str_detect(pattern ="TREATMENTS") %>%
     which() %>%
     -2
-
+  
   TN <- suppressWarnings(fread(file, autostart = find_TN, showProgress = FALSE)) %>%
     tbl_df() %>%
     magrittr::extract2(1)
@@ -207,96 +207,92 @@ make_sampling <- function(x, k){
 }
 
 summarise_group <- function(df, group, x){
-
- 
+  
+  
   df %>%
     dplyr::group_by_at(group) %>%
     dplyr::summarise_at(.vars = x, .funs = mean, na.rm = T) %>%
     select_at(x)
-    # dplyr::rename_at(x, funs(paste0("mean_", .)))
+  # dplyr::rename_at(x, funs(paste0("mean_", .)))
 }
 
 tell_sobol <- function(sobol_model, y){
   
   y <- as.matrix(y)
   sobol_model <- sensitivity::tell(sobol_model, (y-mean(y) /sd(y)))
-   
+  
   return(sobol_model)
 }
 
-
 graphs_sobol <- function(sobol_model, type){
-      
+  
   
   # Type = 1 make only the main effects
   # Type = 2 make both total effects and main effects
   # sobol_model <- make_sobol
-    if (is.null(sobol_model$S)) {
-      stop("Invalid Sobol object instance!")
-    }
-  
-    switch(type, `1` = {
-        
-      variable <- colnames(sobol_model$y)
-      
-      main_effect <- sobol_model$S %>%
-        tbl_df() %>%
-        mutate(params = rownames(.)) %>%
-        mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
-        mutate(effect = 'Main_Effect') 
-        
-      
-      p <- ggplot() + 
-        geom_bar(data = main_effect, aes(x = params, y = original), stat = "identity") +
-        geom_errorbar(data = main_effect, aes(ymin = `min. c.i.`, ymax = `max. c.i.`, x = params), colour = "black", width = 0.1) +
-        labs(x = expression(paste("Parameters")), y = expression(S[i])) +
-        ggtitle(variable) +
-        theme_bw()
-      
-      # ggsave(paste0(path, 'sobol_main_effect_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
-                        
-    }, `2` = {
-      
-      variable <- colnames(sobol_model$y)
-      
-      main_effect <- sobol_model$S %>%
-        tbl_df() %>%
-        mutate(params = rownames(.)) %>%
-        mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
-        mutate(effect = 'Main_Effect') 
-      
-      total_effect <- sobol_model$T %>%
-        tbl_df() %>%
-        mutate(params = rownames(.)) %>%
-        mutate(effect = 'Total_Effect') 
-      
-      prueba <-  suppressWarnings(dplyr::bind_rows(main_effect, total_effect)) %>%
-        mutate(params = fct_reorder(params, original, .desc = TRUE))
-  
-     
-      
-     p <- ggplot() + 
-        geom_bar(data = prueba, aes(x = params, y = original, fill = effect),
-                 stat = "identity",
-                 position = "dodge") +
-        scale_fill_grey(start = 0.4, end = 0.8)  +
-        theme_bw() +
-        ggtitle(variable) +
-        labs(x = expression(paste("Parameters")), y = expression(S[i]))
-        
-     # ggsave(paste0(path, 'sobol_MT_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
-    
-
-    }, stop("Invalid chart type!"))
-  
-  
- 
-  
-
-
-    return(p)
+  if (is.null(sobol_model$S)) {
+    stop("Invalid Sobol object instance!")
   }
+  
+  switch(type, `1` = {
+    
+    variable <- colnames(sobol_model$y)
+    
+    main_effect <- sobol_model$S %>%
+      tbl_df() %>%
+      mutate(params = rownames(.)) %>%
+      mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
+      mutate(effect = 'Main_Effect') 
+    
+    
+    p <- ggplot() + 
+      geom_bar(data = main_effect, aes(x = params, y = original), stat = "identity") +
+      geom_errorbar(data = main_effect, aes(ymin = `min. c.i.`, ymax = `max. c.i.`, x = params), colour = "black", width = 0.1) +
+      labs(x = expression(paste("Parameters")), y = expression(S[i])) +
+      ggtitle(variable) +
+      theme_bw()
+    
+    # ggsave(paste0(path, 'sobol_main_effect_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
+    
+  }, `2` = {
+    
+    variable <- colnames(sobol_model$y)
+    
+    main_effect <- sobol_model$S %>%
+      tbl_df() %>%
+      mutate(params = rownames(.)) %>%
+      mutate(params = fct_reorder(params, original, .desc = TRUE)) %>%
+      mutate(effect = 'Main_Effect') 
+    
+    total_effect <- sobol_model$T %>%
+      tbl_df() %>%
+      mutate(params = rownames(.)) %>%
+      mutate(effect = 'Total_Effect') 
+    
+    prueba <-  suppressWarnings(dplyr::bind_rows(main_effect, total_effect)) %>%
+      mutate(params = fct_reorder(params, original, .desc = TRUE))
+    
+    
+    
+    p <- ggplot() + 
+      geom_bar(data = prueba, aes(x = params, y = original, fill = effect),
+               stat = "identity",
+               position = "dodge") +
+      scale_fill_grey(start = 0.4, end = 0.8)  +
+      theme_bw() +
+      ggtitle(variable) +
+      labs(x = expression(paste("Parameters")), y = expression(S[i]))
+    
+    # ggsave(paste0(path, 'sobol_MT_', variable, '.pdf'), plot = p,  width = 30, height = 20, units = "cm")
+    
+    
+  }, stop("Invalid chart type!"))
+  
+  
 
+  
+  return(p)
+}
 
 # https://cran.r-project.org/web/packages/mapsapi/index.html
 # http://enhancedatascience.com/2017/07/10/the-packages-you-need-for-your-r-shiny-application/?utm_content=buffer86436&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer
